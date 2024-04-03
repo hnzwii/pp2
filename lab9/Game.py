@@ -24,6 +24,8 @@ SPEED = 5
 SPEED2 = 3  #The Speed of Coins
 SCORE = 0
 COINS = 0
+COINS2 = 0
+N_COINS = 5  # Number of coins to increase enemy speed
 
 #Setting up Fonts
 font = pygame.font.SysFont("Verdana", 60)
@@ -46,6 +48,8 @@ class Coins(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/Coin.png")
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
+        self.weight = random.randint(1,
+                                     5)  # Assigning random weight to each coin
 
     def move(self):
         self.rect.move_ip(0, SPEED2)
@@ -61,10 +65,12 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/Enemy.png")
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
+        self.speed = SPEED  # Adding self speed parameter
+        print(SPEED)
 
     def move(self):
         global SCORE
-        self.rect.move_ip(0, SPEED)
+        self.rect.move_ip(0, self.speed)
         if (self.rect.bottom > 600):
             SCORE += 1
             self.rect.top = 0
@@ -115,7 +121,7 @@ while True:
     #Cycles through all events occuring
     for event in pygame.event.get():
         if event.type == INC_SPEED:
-            SPEED += 0.5
+            E1.speed += 0.5
             SPEED2 += 0.5
         if event.type == QUIT:
             pygame.quit()
@@ -135,8 +141,17 @@ while True:
     #To be run if collision occurs between Player and Coin
     if pygame.sprite.spritecollideany(P1, coins):
         # pygame.mixer.Sound('').play()
-        COINS += 1
+        COINS += C1.weight
+        COINS2 += C1.weight
+
+        # Increase enemy speed when player earns N coins
+        if COINS2 > 10 and COINS != 0:
+            E1.speed += 0.5
+            SPEED2 += 0.25
+            COINS2 = COINS2 % 10
+
         C1.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
+        C1.weight = random.randint(1, 5)
 
     #To be run if collision occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
