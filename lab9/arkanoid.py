@@ -102,6 +102,79 @@ wintext = losefont.render('You win yay', True, (0, 0, 0))
 wintextRect = wintext.get_rect()
 wintextRect.center = (W // 2, H // 2)
 
+# Variable to track if the game is paused
+paused = False
+
+# Function to display the pause menu
+# def show_pause_menu():
+#     pause_font = pygame.font.SysFont('comicsansms', 40)
+#     pause_text = pause_font.render('Paused', True, (255, 255, 255))
+#     pause_text_rect = pause_text.get_rect()
+#     pause_text_rect.center = (W // 2, H // 2)
+#     screen.blit(pause_text, pause_text_rect)
+#     pygame.display.flip()
+
+
+# Function to handle settings menu
+def handle_settings():
+    global paused, ballSpeed, paddleW, done
+
+    settings_font = pygame.font.SysFont('comicsansms', 30)
+    speed_text_rect = settings_font.render(
+        f'Ball Speed: {ballSpeed}', True,
+        (255, 255, 255)).get_rect(center=(W // 2, H // 2 + 100))
+    paddle_text_rect = settings_font.render(
+        f'Paddle Size: {paddleW}', True,
+        (255, 255, 255)).get_rect(center=(W // 2, H // 2 + 50))
+
+    while True:
+        screen.fill(bg)
+
+        # Display pause text
+        if paused:
+            pause_text = settings_font.render('PAUSED', True, (255, 255, 255))
+            pause_text_rect = pause_text.get_rect(center=(W // 2, H // 2))
+            screen.blit(pause_text, pause_text_rect)
+
+        # Display settings menu
+        screen.blit(
+            settings_font.render(f'Ball Speed: {ballSpeed}', True,
+                                 (255, 255, 255)), speed_text_rect)
+        screen.blit(
+            settings_font.render(f'Paddle Size: {paddleW}', True,
+                                 (255, 255, 255)), paddle_text_rect)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    paused = False
+                    return
+                elif event.key == pygame.K_UP:
+                    # Increase ball speed
+                    ballSpeed += 1
+
+                elif event.key == pygame.K_DOWN:
+                    # Decrease ball speed (ensure it doesn't go below 1)
+                    ballSpeed = max(1, ballSpeed - 1)
+                elif event.key == pygame.K_LEFT:
+                    # Decrease paddle size (ensure it doesn't go below minimum)
+                    paddleW = max(50, paddleW - 10)
+                    paddle.width = paddleW
+                elif event.key == pygame.K_RIGHT:
+                    # Increase paddle size
+                    paddleW = min(W, paddleW + 10)
+                    paddle.width = paddleW
+                elif event.key == pygame.K_RETURN:
+                    # Return to the game
+                    paused = False
+                    return
+
+
+# Main game loop
 while not done:
     for event in pygame.event.get():
         if event.type == INC_SPEED:
@@ -112,8 +185,18 @@ while not done:
                 paddle.width = paddleW
         if event.type == pygame.QUIT:
             done = True
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                # Toggle pause
+                paused = not paused
 
     screen.fill(bg)
+
+    if paused:
+        # show_pause_menu()
+        handle_settings()  # Handle settings even when paused
+        pygame.display.flip()
+        continue
 
     # print(next(enumerate(block_list)))
 
